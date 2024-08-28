@@ -7,7 +7,10 @@
 
 import sys
 import heapq
+from collections import deque
+import random
 
+# 関数
 def dist(a, b):
     return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
 
@@ -57,6 +60,23 @@ def get_path(parent, target):
     return path
 
 
+def bfs(graph, start):
+    visited = [False] * len(graph)
+    queue = deque([start])
+    bfs_order = []
+
+    while queue:
+        node = queue.popleft()
+        if not visited[node]:
+            visited[node] = True
+            bfs_order.append(node)
+            for neighbor, _ in graph[node]:
+                if not visited[neighbor]:
+                    queue.append(neighbor)
+    
+    return bfs_order
+
+
 
 # get input
 N, M, T, L_A, L_B = map(int, input().split())
@@ -70,7 +90,7 @@ for _ in range(M):
 
 t = [0] + list(map(int, input().split()))
 
-# ダイクストラ法により計算ルート
+# ダイクストラ法により最短経路算出
 
 route = [0]
 
@@ -81,23 +101,22 @@ for i in range(T-1):
     _, path = dijkstra(graph, start, target)
     route.extend(path[1:])
 
-
-print(len(route))
-
-sys.exit()
 P = []
 for _ in range(N):
     x, y = map(int, input().split())
     P.append((x, y))
 
-# construct and output the array A
-A = [0] * L_A
-for i in range(L_A):
-    if i < N:
-        A[i] = i
-    else:
-        A[i] = 0
-print(*A)
+# 配置に合わせてAを生成
+## 今回は，0から幅優先探索していった結果を順次格納する
+## 余った部分には0〜599の離散一様乱数を入れる
+
+A = []
+bfs_result = bfs(graph, 0)
+A[:len(bfs_result)] = bfs_result
+
+for i in range(N, L_A):
+    A.append(random.randint(0, T-1))
+
 
 pos_from = 0
 
