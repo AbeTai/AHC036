@@ -81,8 +81,6 @@ def find_and_print_subarray(A, subarray, L_B):
     長さL_BのAの部分配列にsubarrayが含まれていたら、その部分配列を出力する関数
     """
     len_A = len(A)
-    len_subarray = len(subarray)
-
     # Aの中で長さL_Bのスライドウィンドウを作成し、比較する
     for i in range(len_A - L_B + 1):
         window = A[i:i + L_B]
@@ -90,13 +88,10 @@ def find_and_print_subarray(A, subarray, L_B):
             return True, window, i
     return False, False, False
 
-
-
 # get input
 N, M, T, L_A, L_B = map(int, input().split())
 
 graph = [[] for _ in range(N)]
-
 for _ in range(M):
     u, v = map(int, input().split())
     graph[u].append((v, 1))
@@ -104,46 +99,45 @@ for _ in range(M):
 
 t = [0] + list(map(int, input().split()))
 
-# ダイクストラ法により最短経路算出
-
-route = []
-
-for i in range(T):
-    start = t[i]
-    target = t[i+1]
-
-    _, path = dijkstra(graph, start, target)
-    route.extend(path[1:])
-
 P = []
 for _ in range(N):
     x, y = map(int, input().split())
     P.append((x, y))
 
+# ダイクストラ法により最短経路算出
+route = []
+for i in range(T):
+    start = t[i]
+    target = t[i+1]
+    _, path = dijkstra(graph, start, target)
+    route.extend(path[1:])
+
 # 配置に合わせてAを生成
 ## 今回は，0から幅優先探索していった結果を順次格納する
-## 余った部分には0〜599の離散一様乱数を入れる
 
 A = []
 bfs_result = bfs(graph, 0)
 A[:len(bfs_result)] = bfs_result
-
-for i in range(N, L_A):
-    A.append(random.randint(0, T-1))
+A.extend([0]*(L_A-N))# L_Aが長い場合のTLE対策のため，以降の探索範囲を0〜599に絞るのでいらない
 
 print(*A)
+
+# TODO:len(route) <= L_Aの時，Aをroute含むように生成して，R_BをL_Bごとに生成
+
 # j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
-#print(route)
+A_use = A[:N]
+# TLE対策のため，jのサイズを制限する（maxはL_B）
+j = min(3, L_B)
 while len(route) > 0: # 通過したノードを経路から削除していく
     #tmp_node = route[0] # 現在ノードを指定
     # R_Aの決定
     #print(len(route))
-    for i in range(L_B, 0, -1):
+    for i in range(j, 0, -1):
         #print(L_B)
         #print(i)
         subarray = route[0:i]
         #print(subarray)
-        flg, res, idx_R_A = find_and_print_subarray(A, subarray, L_B)
+        flg, res, idx_R_A = find_and_print_subarray(A_use, subarray, L_B)
 
         if flg:
             break
@@ -157,43 +151,3 @@ while len(route) > 0: # 通過したノードを経路から削除していく
     
     # 通ったノードを削除
     route = route[len(subarray):]
-    
-
-sys.exit()
-
-
-pos_from = 0
-for pos_to in t:
-
-    # determine the path by DFS
-    path = []
-    visited = [False] * N
-
-    def dfs(cur, prev):
-        if visited[cur]:
-            return False
-
-        if cur != pos_from:
-            path.append(cur)
-
-        visited[cur] = True
-        if cur == pos_to:
-            return True
-
-        # visit next city in ascending order of Euclidean distance to the target city
-        for v in sorted(graph[cur], key=lambda x: dist(P[x], P[pos_to])):
-            if v == prev:
-                continue
-            if dfs(v, cur):
-                return True
-        path.pop()
-        return False
-
-    dfs(pos_from, -1)
-
-    # for every step in the path, control the signal and move
-    for u in path:
-        print('s', 1, u, 0)
-        print('m', u)
-
-    pos_from = pos_to
