@@ -87,8 +87,8 @@ def find_and_print_subarray(A, subarray, L_B):
     for i in range(len_A - L_B + 1):
         window = A[i:i + L_B]
         if set(subarray) <= set(window):
-            return window, i
-    return False, False
+            return True, window, i
+    return False, False, False
 
 
 
@@ -106,9 +106,9 @@ t = [0] + list(map(int, input().split()))
 
 # ダイクストラ法により最短経路算出
 
-route = [0]
+route = []
 
-for i in range(T-1):
+for i in range(T):
     start = t[i]
     target = t[i+1]
 
@@ -131,20 +131,21 @@ A[:len(bfs_result)] = bfs_result
 for i in range(N, L_A):
     A.append(random.randint(0, T-1))
 
-
-
+print(*A)
 # j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
-
-while len(route): # 通過したノードを経路から削除していく
-    tmp_node = route[0]
-
+#print(route)
+while len(route) > 0: # 通過したノードを経路から削除していく
+    #tmp_node = route[0] # 現在ノードを指定
     # R_Aの決定
-    for i in range(L_B+1, 0):
-        print(i)
-        subarray = route[1:i]
-        res, idx_R_A = find_and_print_subarray(A, subarray, L_B)
+    #print(len(route))
+    for i in range(L_B, 0, -1):
+        #print(L_B)
+        #print(i)
+        subarray = route[0:i]
+        #print(subarray)
+        flg, res, idx_R_A = find_and_print_subarray(A, subarray, L_B)
 
-        if res:
+        if flg:
             break
     
     # 信号操作を行う
@@ -155,46 +156,4 @@ while len(route): # 通過したノードを経路から削除していく
         print('m', s_i)
     
     # 通ったノードを削除
-    route = route[1+len(subarray):]
-    break
-    
-
-
-sys.exit()
-
-
-pos_from = 0
-for pos_to in t:
-
-    # determine the path by DFS
-    path = []
-    visited = [False] * N
-
-    def dfs(cur, prev):
-        if visited[cur]:
-            return False
-
-        if cur != pos_from:
-            path.append(cur)
-
-        visited[cur] = True
-        if cur == pos_to:
-            return True
-
-        # visit next city in ascending order of Euclidean distance to the target city
-        for v in sorted(graph[cur], key=lambda x: dist(P[x], P[pos_to])):
-            if v == prev:
-                continue
-            if dfs(v, cur):
-                return True
-        path.pop()
-        return False
-
-    dfs(pos_from, -1)
-
-    # for every step in the path, control the signal and move
-    for u in path:
-        print('s', 1, u, 0)
-        print('m', u)
-
-    pos_from = pos_to
+    route = route[len(subarray):]
