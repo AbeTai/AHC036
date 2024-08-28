@@ -76,6 +76,20 @@ def bfs(graph, start):
     
     return bfs_order
 
+def find_and_print_subarray(A, subarray, L_B):
+    """
+    長さL_BのAの部分配列にsubarrayが含まれていたら、その部分配列を出力する関数
+    """
+    len_A = len(A)
+    len_subarray = len(subarray)
+
+    # Aの中で長さL_Bのスライドウィンドウを作成し、比較する
+    for i in range(len_A - L_B + 1):
+        window = A[i:i + L_B]
+        if set(subarray) <= set(window):
+            return window, i
+    return False, False
+
 
 
 # get input
@@ -118,8 +132,38 @@ for i in range(N, L_A):
     A.append(random.randint(0, T-1))
 
 
-pos_from = 0
 
+# j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
+
+while len(route): # 通過したノードを経路から削除していく
+    tmp_node = route[0]
+
+    # R_Aの決定
+    for i in range(L_B+1, 0):
+        print(i)
+        subarray = route[1:i]
+        res, idx_R_A = find_and_print_subarray(A, subarray, L_B)
+
+        if res:
+            break
+    
+    # 信号操作を行う
+    print('s', L_B, idx_R_A, 0)
+
+    # 移動を行う
+    for s_i in subarray:
+        print('m', s_i)
+    
+    # 通ったノードを削除
+    route = route[1+len(subarray):]
+    break
+    
+
+
+sys.exit()
+
+
+pos_from = 0
 for pos_to in t:
 
     # determine the path by DFS
@@ -138,7 +182,7 @@ for pos_to in t:
             return True
 
         # visit next city in ascending order of Euclidean distance to the target city
-        for v in sorted(G[cur], key=lambda x: dist(P[x], P[pos_to])):
+        for v in sorted(graph[cur], key=lambda x: dist(P[x], P[pos_to])):
             if v == prev:
                 continue
             if dfs(v, cur):
