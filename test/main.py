@@ -120,33 +120,47 @@ valid_list = [x for x in range(0, 600)]
 if len(set(valid_list) - set(A)) != 0:
     A.extend(list(set(valid_list) - set(A)))
 
-A.extend([0]*(L_A-len(A)))
+#A.extend([0]*(L_A-len(A)))
+
+## 余っている部分に，ゴールから幅優先した結果を，余っている分格納する
+remaining_len = L_A - len(A)
+if remaining_len > 0:
+    bfs_result_reversed = bfs(graph, t[-1])
+    A.extend(bfs_result_reversed[:remaining_len])
 
 print(*A)
-
-#print(route)
-#print(t)
-# TODO:len(route) <= L_Aの時，Aをroute含むように生成して，R_BをL_Bごとに生成
 
 # j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
 A_use = A
 
 # TLE対策のため，jのサイズを制限する（maxはL_B）
-j = min(20, L_B)
+j = min(10, L_B)
 
 while len(route) > 0: # 通過したノードを経路から削除していく
     # R_Aの決定
     ## 次のノードを含むA_useの中の長さL_Bの部分配列を抽出→これにだけ探索をかける
-    idx_next = A_use.index(route[0])
+    idx_next_list = [i for i, x in enumerate(A_use) if x == route[0]]  # 全ての位置を取得
+    #print(idx_next_list)
     R_A_cand = []
     idx_R_A_cand = []
-    for b in range(L_B):
-        start = max(0, idx_next-L_B+b+1)
-        end = min(start+L_B, len(A_use))
-        R_A_cand.append(A_use[start:end])
-        idx_R_A_cand.append(start)
+    for idx_next in idx_next_list: # 次ノードである各インデックスに対するループ
+        for b in range(L_B): # 長さL_Bの候補リストの生成
+            start = max(0, idx_next-L_B+b+1)
+            end = min(start+L_B, len(A_use))
+            if start + L_B > len(A_use):
+                start = len(A_use) - L_B
+                end = len(A_use)
+            #print(start, end)
+            #print(end-start)
+            R_A_cand.append(A_use[start:end])
+            idx_R_A_cand.append(start)
+
+    R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
+    idx_R_A_cand = list(OrderedDict.fromkeys(idx_R_A_cand))
+
     #R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
     #idx_R_A_cand = list(set(idx_R_A_cand))
+    
     for i in range(j, 0, -1):
         if i >1:
             subarray = route[0:i]
@@ -164,7 +178,7 @@ while len(route) > 0: # 通過したノードを経路から削除していく
             idx_R_A = A_use.index(subarray[0])
     
     # idx_R_AがL_A - lを超えないようにする
-    if idx_R_A >= L_A - L_B:
+    if idx_R_A > L_A - L_B:
         idx_R_A = idx_R_A - (idx_R_A + L_B - L_A) - 1
 
     # 信号操作を行う
@@ -176,5 +190,3 @@ while len(route) > 0: # 通過したノードを経路から削除していく
     
     # 通ったノードを削除
     route = route[len(subarray):]
-
-# TODO: idx_R_AがL_A - l を超えてしまうことがある
