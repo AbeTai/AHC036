@@ -19,12 +19,12 @@ PROGRAM_CMD = f"python3 ../main.py"
 
 # テスト対象seed番号
 START_SEED = 0
-SIZE = 1000
+SIZE = 100
 STEP = 1
 
 
 # 最大並列処理数
-MAX_WORKERS = 8
+MAX_WORKERS = 16
 
 
 # スコア表示文字列 # ローカルテスタ（ビジュアライザ）が出力する形式に合わせて変更する
