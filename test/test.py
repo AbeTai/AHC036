@@ -15,16 +15,16 @@
 #   C++の場合 ：a.exe
 #   Rustの場合：<Rustプロジェクトフォルダ>/target/release/***.exe
 # PROGRAM_CMD = "./tools/target/release/tester ./target/release/ahc030"
-PROGRAM_CMD = f"python3 ../sample.py"
+PROGRAM_CMD = f"python3 ../main.py"
 
 # テスト対象seed番号
 START_SEED = 0
-SIZE = 100
+SIZE = 1000
 STEP = 1
 
 
 # 最大並列処理数
-MAX_WORKERS = 16
+MAX_WORKERS = 8
 
 
 # スコア表示文字列 # ローカルテスタ（ビジュアライザ）が出力する形式に合わせて変更する
