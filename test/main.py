@@ -7,14 +7,9 @@
 
 import sys
 import heapq
-from collections import deque
-import random
+from collections import deque, OrderedDict
 
 # 関数
-def dist(a, b):
-    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
-
-
 def dijkstra(graph, start, target):
     # 初期化
     n = len(graph)
@@ -99,10 +94,12 @@ for _ in range(M):
 
 t = [0] + list(map(int, input().split()))
 
+"""
 P = []
 for _ in range(N):
     x, y = map(int, input().split())
     P.append((x, y))
+"""
 
 # ダイクストラ法により最短経路算出
 route = []
@@ -118,30 +115,58 @@ for i in range(T):
 A = []
 bfs_result = bfs(graph, 0)
 A[:len(bfs_result)] = bfs_result
-A.extend([0]*(L_A-N))# L_Aが長い場合のTLE対策のため，以降の探索範囲を0〜599に絞るのでいらない
+
+valid_list = [x for x in range(0, 600)]
+if len(set(valid_list) - set(A)) != 0:
+    A.extend(list(set(valid_list) - set(A)))
+
+A.extend([0]*(L_A-len(A)))
 
 print(*A)
 
+#print(route)
+#print(t)
 # TODO:len(route) <= L_Aの時，Aをroute含むように生成して，R_BをL_Bごとに生成
 
 # j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
-A_use = A[:N]
-# TLE対策のため，jのサイズを制限する（maxはL_B）
-j = min(3, L_B)
-while len(route) > 0: # 通過したノードを経路から削除していく
-    #tmp_node = route[0] # 現在ノードを指定
-    # R_Aの決定
-    #print(len(route))
-    for i in range(j, 0, -1):
-        #print(L_B)
-        #print(i)
-        subarray = route[0:i]
-        #print(subarray)
-        flg, res, idx_R_A = find_and_print_subarray(A_use, subarray, L_B)
+A_use = A
 
-        if flg:
-            break
+# TLE対策のため，jのサイズを制限する（maxはL_B）
+j = min(20, L_B)
+
+while len(route) > 0: # 通過したノードを経路から削除していく
+    # R_Aの決定
+    ## 次のノードを含むA_useの中の長さL_Bの部分配列を抽出→これにだけ探索をかける
+    idx_next = A_use.index(route[0])
+    R_A_cand = []
+    idx_R_A_cand = []
+    for b in range(L_B):
+        start = max(0, idx_next-L_B+b+1)
+        end = min(start+L_B, len(A_use))
+        R_A_cand.append(A_use[start:end])
+        idx_R_A_cand.append(start)
+    #R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
+    #idx_R_A_cand = list(set(idx_R_A_cand))
+    for i in range(j, 0, -1):
+        if i >1:
+            subarray = route[0:i]
+            
+            for idx_R_A_cand_tmp, R_A_cand_tmp in zip(idx_R_A_cand, R_A_cand):
+                #print(idx_R_A_cand_tmp, R_A_cand_tmp)
+                if set(subarray) <= set(R_A_cand_tmp):
+                    idx_R_A = idx_R_A_cand_tmp
+                    break
+            if set(subarray) <= set(R_A_cand_tmp):
+                break
+
+        else:
+            subarray = [route[0]]
+            idx_R_A = A_use.index(subarray[0])
     
+    # idx_R_AがL_A - lを超えないようにする
+    if idx_R_A >= L_A - L_B:
+        idx_R_A = idx_R_A - (idx_R_A + L_B - L_A) - 1
+
     # 信号操作を行う
     print('s', L_B, idx_R_A, 0)
 
@@ -151,3 +176,5 @@ while len(route) > 0: # 通過したノードを経路から削除していく
     
     # 通ったノードを削除
     route = route[len(subarray):]
+
+# TODO: idx_R_AがL_A - l を超えてしまうことがある
