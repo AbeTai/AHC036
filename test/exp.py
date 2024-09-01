@@ -17,3 +17,13 @@ subarray = [1,2]
 L_B = 4
 
 print(find_and_print_subarray(A, subarray, L_B))
+
+# %%
+with open('./tools/out/0015.txt', 'r') as file:
+    lines = file.readlines()
+    first_line = lines[0].strip().split()
+    num = 731
+    L_B = 5
+    print(first_line[num:num+L_B])
+
+# %%
