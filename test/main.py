@@ -113,23 +113,38 @@ for i in range(T):
 ## 今回は，0から幅優先探索していった結果を順次格納する
 
 A = []
-bfs_result = bfs(graph, 0)
-A[:len(bfs_result)] = bfs_result
+for b_step in range(L_A//L_B):
+    end = (L_A // L_B - b_step) * L_B
+    if N - len(set(route[:end])) <= L_A - end:
+        A.extend(route[:end])
+        break
+
 
 valid_list = [x for x in range(0, 600)]
 if len(set(valid_list) - set(A)) != 0:
     A.extend(list(set(valid_list) - set(A)))
+    
 
-#A.extend([0]*(L_A-len(A)))
-
-## 余っている部分に，ゴールから幅優先した結果を，余っている分格納する
-remaining_len = L_A - len(A)
-if remaining_len > 0:
-    bfs_result_reversed = bfs(graph, t[-1])
-    A.extend(bfs_result_reversed[:remaining_len])
+if L_A-len(A) == 0:
+    pass
+else:
+    A.extend(route[-(L_A-len(A)):])
 
 print(*A)
 
+# 先頭できる限りfor-loop
+to_end_itr = L_A // L_B - b_step
+for b_itr in range(to_end_itr):
+    start = b_itr * L_B
+    # 信号操作
+    print('s', L_B, start, 0)
+    # 移動
+    subarray = route[:L_B]
+    for s_i in subarray:
+        print('m', s_i)
+
+    route = route[L_B:]
+    
 # j = L_B〜1について，t[i:i+j]を含むR_Aを探す→見つかり次第，それをBとする
 A_use = A
 
@@ -176,6 +191,8 @@ while len(route) > 0: # 通過したノードを経路から削除していく
                 #print(idx_R_A_cand_tmp, R_A_cand_tmp)
                 if set(subarray) <= set(R_A_cand_tmp):
                     idx_R_A = idx_R_A_cand_tmp
+                    #print(subarray)
+                    #print(idx_R_A)
                     break
             if set(subarray) <= set(R_A_cand_tmp):
                 break
@@ -183,10 +200,12 @@ while len(route) > 0: # 通過したノードを経路から削除していく
         else:
             subarray = [route[0]]
             idx_R_A = A_use.index(subarray[0])
+            #print(subarray)
+            #print(idx_R_A)
     
     # idx_R_AがL_A - lを超えないようにする
     if idx_R_A > L_A - L_B:
-        idx_R_A = idx_R_A - (idx_R_A + L_B - L_A) - 1
+        idx_R_A = idx_R_A - (idx_R_A + L_B - L_A)
     
     #print(subarray)
     #print(idx_R_A)
