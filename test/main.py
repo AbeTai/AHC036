@@ -148,18 +148,25 @@ while len(route) > 0: # 通過したノードを経路から削除していく
             start = max(0, idx_next-L_B+b+1)
             end = min(start+L_B, len(A_use))
             if start + L_B > len(A_use):
-                start = len(A_use) - L_B
+                start = (len(A_use) - L_B) + 1
                 end = len(A_use)
             #print(start, end)
             #print(end-start)
             R_A_cand.append(A_use[start:end])
             idx_R_A_cand.append(start)
+    #print(R_A_cand)
+    #print(idx_R_A_cand)
 
-    R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
-    idx_R_A_cand = list(OrderedDict.fromkeys(idx_R_A_cand))
+    #R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
+    #idx_R_A_cand = list(OrderedDict.fromkeys(idx_R_A_cand))
+
+    #print(R_A_cand)
+    #print(idx_R_A_cand)
 
     #R_A_cand = list(OrderedDict.fromkeys([tuple(x) for x in R_A_cand]))
     #idx_R_A_cand = list(set(idx_R_A_cand))
+    if j >= len(route): # routeの残り数に合わせて，探索範囲を制限
+        j = min(len(route), L_B)
     
     for i in range(j, 0, -1):
         if i >1:
@@ -180,6 +187,9 @@ while len(route) > 0: # 通過したノードを経路から削除していく
     # idx_R_AがL_A - lを超えないようにする
     if idx_R_A > L_A - L_B:
         idx_R_A = idx_R_A - (idx_R_A + L_B - L_A) - 1
+    
+    #print(subarray)
+    #print(idx_R_A)
 
     # 信号操作を行う
     print('s', L_B, idx_R_A, 0)
@@ -190,3 +200,5 @@ while len(route) > 0: # 通過したノードを経路から削除していく
     
     # 通ったノードを削除
     route = route[len(subarray):]
+
+    #sys.exit()
