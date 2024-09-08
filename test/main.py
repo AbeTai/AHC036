@@ -109,9 +109,7 @@ for i in range(T):
     _, path = dijkstra(graph, start, target)
     route.extend(path[1:])
 
-# 配置に合わせてAを生成
-## 今回は，0から幅優先探索していった結果を順次格納する
-
+# routeに合わせてAを生成
 A = []
 for b_step in range(L_A//L_B):
     end = (L_A // L_B - b_step) * L_B
@@ -119,12 +117,10 @@ for b_step in range(L_A//L_B):
         A.extend(route[:end])
         break
 
-
 valid_list = [x for x in range(0, 600)]
 if len(set(valid_list) - set(A)) != 0:
     A.extend(list(set(valid_list) - set(A)))
     
-
 if L_A-len(A) == 0:
     pass
 else:
@@ -149,7 +145,7 @@ for b_itr in range(to_end_itr):
 A_use = A
 
 # TLE対策のため，jのサイズを制限する（maxはL_B）
-j = min(10, L_B)
+j = min(L_B, L_B)
 
 while len(route) > 0: # 通過したノードを経路から削除していく
     # R_Aの決定
